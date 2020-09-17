@@ -4,15 +4,15 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Calc"
-        xmlns:viewmodals="clr-namespace:Calc.ViewModels"
+        xmlns:viewModels="clr-namespace:Calc.ViewModels"
         mc:Ignorable="d" 
-        Title="MainWindow" Height="400" Width="220"
+        Title="MainWindow" Height="400" Width="230"
         AllowsTransparency="True"
         WindowStartupLocation="CenterScreen"
         MouseLeftButtonDown="MainWindow_OnMouseLeftButtonDown"
         Background="#ddC88BF0"
         Name="MainWin"
-        d:DataContext="{d:DesignInstance viewmodals:MainViewModel}">
+        d:DataContext="{d:DesignInstance viewModels:MainViewModel}">
     <DockPanel Margin="10, 10" LastChildFill="False">
         <Grid DockPanel.Dock="Left" Name="CalcGrid" MinWidth="200" MaxWidth="200">
             <Grid.RowDefinitions>
@@ -94,7 +94,7 @@
         </Grid>
         <ScrollViewer VerticalScrollBarVisibility="Hidden" DockPanel.Dock="Left"
                       MaxWidth="200" Visibility="Collapsed"
-                      HorizontalScrollBarVisibility="Auto" Name="LogExperession">
+                      HorizontalScrollBarVisibility="Auto" Name="LogExpressions">
             <ItemsControl ItemsSource="{Binding Path=Expressions, Mode=OneWay,
                         UpdateSourceTrigger=PropertyChanged}"
                           Width="Auto">

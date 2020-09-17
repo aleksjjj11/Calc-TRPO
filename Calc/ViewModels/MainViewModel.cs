@@ -18,7 +18,7 @@ namespace Calc.ViewModels
         private double? _resultValue;
         private char? _operation;
         private string _textExpression = "";
-        private ObservableCollection<string> logExperessions;
+        private ObservableCollection<string> _logExpressions;
 
         private string _lastExpression;
         public string LastExpression
@@ -140,7 +140,7 @@ namespace Calc.ViewModels
 
         public MainViewModel()
         {
-            logExperessions = new ObservableCollection<string>();
+            _logExpressions = new ObservableCollection<string>();
         }
 
         public string TextExpression
@@ -155,10 +155,10 @@ namespace Calc.ViewModels
 
         public ObservableCollection<string> Expressions
         {
-            get => logExperessions;
+            get => _logExpressions;
             set
             {
-                logExperessions = value;
+                _logExpressions = value;
                 OnPropertyChanged(nameof(Expressions));
 
             }

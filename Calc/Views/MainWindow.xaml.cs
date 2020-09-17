@@ -13,12 +13,12 @@ namespace Calc
     /// </summary>
     public partial class MainWindow
     {
-        private MainViewModel viewModel;
+        private MainViewModel _viewModel;
         
         public MainWindow()
         {
             this.WindowStyle = WindowStyle.None;
-            this.DataContext = viewModel = new MainViewModel();
+            this.DataContext = _viewModel = new MainViewModel();
             InitializeComponent();
         }
         
@@ -29,14 +29,14 @@ namespace Calc
 
         private void ShowLogs_Click(object sender, RoutedEventArgs e)
         {
-            if (LogExperession.Visibility == Visibility.Visible)
+            if (LogExpressions.Visibility == Visibility.Visible)
             {
-                LogExperession.Visibility = Visibility.Collapsed;
+                LogExpressions.Visibility = Visibility.Collapsed;
                 this.Width -= 240;
             } 
             else
             {
-                LogExperession.Visibility = Visibility.Visible;
+                LogExpressions.Visibility = Visibility.Visible;
                 this.Width += 240;
             }
         }
