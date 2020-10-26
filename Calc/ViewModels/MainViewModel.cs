@@ -1,17 +1,13 @@
-﻿using Calc.Commands;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Calc.Commands;
 
 namespace Calc.ViewModels
 {
-    class MainViewModel : BaseViewModel
+    internal class MainViewModel : BaseViewModel
     {
         private double? _leftValue;
         private double? _rightValue;
@@ -21,6 +17,7 @@ namespace Calc.ViewModels
         private ObservableCollection<string> _logExpressions;
 
         private string _lastExpression;
+
         public string LastExpression
         {
             get => _lastExpression;
@@ -32,59 +29,53 @@ namespace Calc.ViewModels
         }
 
         private ICommand _addNumber;
-        public ICommand AddNumber
-        {
-            get => _addNumber ?? new RelayCommand<string>(x =>
-            {
-                TextExpression = TextExpression == "0" ? TextExpression = x : TextExpression + x;
-            }, x => true);
-        }
+
+        public ICommand AddNumber =>
+            _addNumber ??
+            new RelayCommand<string>(x => { TextExpression = TextExpression == "0" ? x : TextExpression + x; },
+                x => true);
 
         private ICommand _addZero;
-        public ICommand AddZero
-        {
-            get => _addZero ?? new RelayCommand<string>(x =>
-            {
-                TextExpression += x;
-            }, x => !(TextExpression == "" && Operation == '/') && TextExpression != "0");
-        }
+
+        public ICommand AddZero =>
+            _addZero ?? new RelayCommand<string>(x => { TextExpression += x; },
+                x => !(TextExpression == "" && Operation == '/') && TextExpression != "0");
 
         private ICommand _action;
-        public ICommand Action
-        {
-            get => _action ?? new RelayCommand<string>(x =>
+
+        public ICommand Action =>
+            _action ?? new RelayCommand<string>(x =>
             {
                 switch (x)
                 {
                     case "C":
-                        {
-                            TextExpression = "";
-                            LeftValue = RightValue = _operation = null;
-                            break;
-                        }
+                    {
+                        TextExpression = "";
+                        LeftValue = RightValue = _operation = null;
+                        break;
+                    }
                     case "CE":
-                        {
-                            TextExpression = "";
-                            break;
-                        }
+                    {
+                        TextExpression = "";
+                        break;
+                    }
                     case "+/-":
-                        {
-                            TextExpression = (-1 * Convert.ToDouble(TextExpression)).ToString();
-                            break;
-                        }
+                    {
+                        TextExpression = (-1 * Convert.ToDouble(TextExpression)).ToString();
+                        break;
+                    }
                     case ".":
-                        {
-                            TextExpression = TextExpression == "" ? TextExpression += "0." : TextExpression += ".";
-                            break;
-                        }
+                    {
+                        TextExpression = TextExpression == "" ? TextExpression += "0." : TextExpression += ".";
+                        break;
+                    }
                 }
-            }, x => (x == "." && !TextExpression.Contains(".") ||  x != "."));
-        }
+            }, x => x == "." && !TextExpression.Contains(".") || x != ".");
 
         private ICommand _arithmeticAction;
-        public ICommand ArithmeticAction
-        {
-            get => _arithmeticAction ?? new RelayCommand<string>(x =>
+
+        public ICommand ArithmeticAction =>
+            _arithmeticAction ?? new RelayCommand<string>(x =>
             {
                 switch (x)
                 {
@@ -92,51 +83,56 @@ namespace Calc.ViewModels
                     case "/":
                     case "+":
                     case "-":
+                    {
+                        if ((TextExpression == "" || TextExpression == "0") && Operation != null)
                         {
-                            if ((TextExpression == "" || TextExpression == "0") && Operation != null)
-                            {
-                                Operation = Convert.ToChar(x);
-                                LastExpression = $"{LeftValue} {Operation}";
-                                break;
-                            }
-                            if (TextExpression == "" && Operation is null) break;
-                            if (LeftValue != null && Operation != null)
-                            {
-                                bool res = Compute();
-                                if (!res) break;
-                            }
+                            Operation = Convert.ToChar(x);
+                            LastExpression = $"{LeftValue} {Operation}";
+                            break;
+                        }
 
-                            try
-                            {
-                                LeftValue = Convert.ToDouble(TextExpression);
-                                Operation = Convert.ToChar(x);
-                                TextExpression = "";
-                                LastExpression = $"{LeftValue} {Operation}";
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show($"Error: {ex.Message}");
-                            }
-                            break;
-                        }
-                    case "=":
+                        if (TextExpression == "" && Operation is null) break;
+                        if (LeftValue != null && Operation != null)
                         {
-                            if (LeftValue is null || Operation is null) break;
-                            Compute();
-                            break;
+                            var res = Compute();
+                            if (!res) break;
                         }
+
+                        try
+                        {
+                            LeftValue = Convert.ToDouble(TextExpression);
+                            Operation = Convert.ToChar(x);
+                            TextExpression = "";
+                            LastExpression = $"{LeftValue} {Operation}";
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Error: {ex.Message}");
+                        }
+
+                        break;
+                    }
+                    case "=":
+                    {
+                        if (LeftValue is null || Operation is null) break;
+                        Compute();
+                        break;
+                    }
                 }
             }, x => true);
-        }
 
         private ICommand _closeApp;
-        public ICommand CloseApp
-        {
-            get => _arithmeticAction ?? new RelayCommand<Window>(x =>
-            {
-                x.Close();
+
+        public ICommand CloseApp =>
+            _closeApp ?? new RelayCommand<Window>(x => { x.Close(); }, x => true);
+
+        private ICommand _showLogs;
+
+        public ICommand ShowLogsCommand =>
+            _showLogs ?? new RelayCommand<ScrollViewer>(x => 
+            { 
+                x.Visibility = x.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible; 
             }, x => true);
-        }
 
         private ICommand _resetMemoryCommand;
 
@@ -239,7 +235,6 @@ namespace Calc.ViewModels
             {
                 _logExpressions = value;
                 OnPropertyChanged(nameof(Expressions));
-
             }
         }
 
@@ -253,6 +248,7 @@ namespace Calc.ViewModels
                 OnPropertyChanged(nameof(LastExpression));
             }
         }
+
         public double? RightValue
         {
             get => _rightValue;
@@ -263,6 +259,7 @@ namespace Calc.ViewModels
                 OnPropertyChanged(nameof(LastExpression));
             }
         }
+
         public double? ResultValue
         {
             get => _resultValue;
@@ -273,6 +270,7 @@ namespace Calc.ViewModels
                 OnPropertyChanged(nameof(LastExpression));
             }
         }
+
         public char? Operation
         {
             get => _operation;
@@ -296,34 +294,37 @@ namespace Calc.ViewModels
                 MessageBox.Show($"Error: {ex.Message}");
                 return false;
             }
+
             switch (Operation)
             {
                 case '+':
-                    {
-                        ResultValue = LeftValue + RightValue;
-                        break;
-                    }
+                {
+                    ResultValue = LeftValue + RightValue;
+                    break;
+                }
                 case '-':
-                    {
-                        ResultValue = LeftValue - RightValue;
-                        break;
-                    }
+                {
+                    ResultValue = LeftValue - RightValue;
+                    break;
+                }
                 case '*':
-                    {
-                        ResultValue = LeftValue * RightValue;
-                        break;
-                    }
+                {
+                    ResultValue = LeftValue * RightValue;
+                    break;
+                }
                 case '/':
+                {
+                    if (RightValue == 0)
                     {
-                        if (RightValue == 0)
-                        {
-                            MessageBox.Show("Не надо делить на ноль друг)");
-                            return false;
-                        }
-                        ResultValue = LeftValue / RightValue;
-                        break;
+                        MessageBox.Show("Не надо делить на ноль друг)");
+                        return false;
                     }
+
+                    ResultValue = LeftValue / RightValue;
+                    break;
+                }
             }
+
             LastExpression = $"{LeftValue} {Operation} {RightValue} = {ResultValue}";
             Expressions.Add(LastExpression);
             TextExpression = ResultValue.ToString();
