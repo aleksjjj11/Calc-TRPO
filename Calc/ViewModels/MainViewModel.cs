@@ -138,9 +138,86 @@ namespace Calc.ViewModels
             }, x => true);
         }
 
+        private ICommand _resetMemoryCommand;
+
+        public ICommand ResetMemoryCommand
+        {
+            get => _resetMemoryCommand ?? new RelayCommand(() =>
+            {
+                Memory.Clear();
+            }, () => Memory.Count > 0);
+        }
+
+        private ICommand _addElementInMemory;
+
+        public ICommand AddElementInMemory
+        {
+            get => _addElementInMemory ?? new RelayCommand<string>(x =>
+            {
+                Memory.Add(Convert.ToDouble(x));
+            }, x => TextExpression != "");
+        }
+
+        private ICommand _additionInMemory;
+
+        public ICommand AdditionInMemory
+        {
+            get => _additionInMemory ?? new RelayCommand<string>(x =>
+            {
+                var el = Memory.First();
+                Memory.Remove(Memory.First());
+                Memory.Add(el+ Convert.ToDouble(x));
+            }, x => TextExpression != "" && Memory.Count > 0);
+        }
+
+        private ICommand _subtractionInMemory;
+
+        public ICommand SubtractionInMemory
+        {
+            get => _subtractionInMemory ?? new RelayCommand<string>(x =>
+            {
+                var el = Memory.First();
+                Memory.Remove(Memory.First());
+                Memory.Add(el - Convert.ToDouble(x));
+            }, x => TextExpression != "" && Memory.Count > 0);
+        }
+
+        private ICommand _subtractionMemoryElement;
+
+        public ICommand SubtractionMemoryElement
+        {
+            get => _subtractionMemoryElement ?? new RelayCommand<TextBox>(x =>
+            {
+                var res = (Convert.ToDouble(x.Text) - Convert.ToDouble(TextExpression));
+                x.Text = res.ToString();
+            }, x => TextExpression != "");
+        }
+
+        private ICommand _additionMemoryElement;
+
+        public ICommand AdditionMemoryElement
+        {
+            get => _subtractionMemoryElement ?? new RelayCommand<TextBox>(x =>
+            {
+                var res = (Convert.ToDouble(x.Text) + Convert.ToDouble(TextExpression));
+                x.Text = res.ToString();
+            }, x => TextExpression != "");
+        }
+
+        private ICommand _deleteMemoryElement;
+
+        public ICommand DeleteMemoryElement
+        {
+            get => _deleteMemoryElement ?? new RelayCommand<TextBox>(x =>
+            {
+                Memory.RemoveAt((int)x.Tag);
+            }, x => true);
+        }
+
         public MainViewModel()
         {
             _logExpressions = new ObservableCollection<string>();
+            Memory = new ObservableCollection<double>();
         }
 
         public string TextExpression
@@ -152,6 +229,8 @@ namespace Calc.ViewModels
                 OnPropertyChanged(nameof(TextExpression));
             }
         }
+
+        public ObservableCollection<double> Memory { get; set; }
 
         public ObservableCollection<string> Expressions
         {
