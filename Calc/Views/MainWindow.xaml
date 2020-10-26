@@ -9,6 +9,7 @@
         Title="MainWindow" Height="400" Width="230"
         AllowsTransparency="True"
         WindowStartupLocation="CenterScreen"
+        SizeToContent="Width"
         MouseLeftButtonDown="MainWindow_OnMouseLeftButtonDown"
         Background="#ddC88BF0"
         Name="MainWin"
@@ -58,7 +59,8 @@
                 VerticalAlignment="Top" HorizontalAlignment="Left"/>
             <Button Height="30" Width="30" Content="→" Style="{StaticResource CloseButtonStyle}"
                 Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="4" 
-                Click="ShowLogs_Click"
+                Command="{Binding ShowLogsCommand}"
+                CommandParameter="{Binding ElementName=LogExpressions}"
                 VerticalAlignment="Top" HorizontalAlignment="Right"/>
             <TextBlock Name="TextViewer" 
                 Text="{Binding TextExpression, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"

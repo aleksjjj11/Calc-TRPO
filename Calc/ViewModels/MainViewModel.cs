@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -129,7 +130,7 @@ namespace Calc.ViewModels
         private ICommand _showLogs;
 
         public ICommand ShowLogsCommand =>
-            _showLogs ?? new RelayCommand<ScrollViewer>(x => 
+            _showLogs ?? new RelayCommand<TabControl>(x => 
             { 
                 x.Visibility = x.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible; 
             }, x => true);
@@ -161,8 +162,7 @@ namespace Calc.ViewModels
             get => _additionInMemory ?? new RelayCommand<string>(x =>
             {
                 var el = Memory.First();
-                Memory.Remove(Memory.First());
-                Memory.Add(el+ Convert.ToDouble(x));
+                Memory[0] = el + Convert.ToDouble(x);
             }, x => TextExpression != "" && Memory.Count > 0);
         }
 
@@ -173,8 +173,7 @@ namespace Calc.ViewModels
             get => _subtractionInMemory ?? new RelayCommand<string>(x =>
             {
                 var el = Memory.First();
-                Memory.Remove(Memory.First());
-                Memory.Add(el - Convert.ToDouble(x));
+                Memory[0] = el - Convert.ToDouble(x);
             }, x => TextExpression != "" && Memory.Count > 0);
         }
 
