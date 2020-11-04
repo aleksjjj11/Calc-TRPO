@@ -5,15 +5,13 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Calc.Commands;
+using Calc.Models;
 
 namespace Calc.ViewModels
 {
     internal class MainViewModel : BaseViewModel
     {
-        private double? _leftValue;
-        private double? _rightValue;
         private double? _resultValue;
-        private char? _operation;
         private string _textExpression = "";
         private ObservableCollection<string> _logExpressions;
 
@@ -40,7 +38,7 @@ namespace Calc.ViewModels
 
         public ICommand AddZero =>
             _addZero ?? new RelayCommand<string>(x => { TextExpression += x; },
-                x => !(TextExpression == "" && Operation == '/') && TextExpression != "0");
+                x => true);
 
         private ICommand _action;
 
@@ -52,7 +50,6 @@ namespace Calc.ViewModels
                     case "C":
                     {
                         TextExpression = "";
-                        LeftValue = RightValue = _operation = null;
                         break;
                     }
                     case "CE":
@@ -85,37 +82,18 @@ namespace Calc.ViewModels
                     case "+":
                     case "-":
                     {
-                        if ((TextExpression == "" || TextExpression == "0") && Operation != null)
-                        {
-                            Operation = Convert.ToChar(x);
-                            LastExpression = $"{LeftValue} {Operation}";
-                            break;
-                        }
-
-                        if (TextExpression == "" && Operation is null) break;
-                        if (LeftValue != null && Operation != null)
-                        {
-                            var res = Compute();
-                            if (!res) break;
-                        }
-
-                        try
-                        {
-                            LeftValue = Convert.ToDouble(TextExpression);
-                            Operation = Convert.ToChar(x);
-                            TextExpression = "";
-                            LastExpression = $"{LeftValue} {Operation}";
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show($"Error: {ex.Message}");
-                        }
-
+                        if (TextExpression == "") break;
+                        if (TextExpression[TextExpression.Length - 1] == '*' ||
+                            TextExpression[TextExpression.Length - 1] == '+' ||
+                            TextExpression[TextExpression.Length - 1] == '-' ||
+                            TextExpression[TextExpression.Length - 1] == '/')
+                            TextExpression = TextExpression.Remove(TextExpression.Length - 1, 1);
+                        TextExpression += x;
                         break;
                     }
                     case "=":
                     {
-                        if (LeftValue is null || Operation is null) break;
+                        if (TextExpression == "") break;
                         Compute();
                         break;
                     }
@@ -151,7 +129,7 @@ namespace Calc.ViewModels
         {
             get => _addElementInMemory ?? new RelayCommand<string>(x =>
             {
-                Memory.Add(Convert.ToDouble(x));
+                Memory.Insert(0, Calculate.Parse(x));
             }, x => TextExpression != "");
         }
 
@@ -162,7 +140,7 @@ namespace Calc.ViewModels
             get => _additionInMemory ?? new RelayCommand<string>(x =>
             {
                 var el = Memory.First();
-                Memory[0] = el + Convert.ToDouble(x);
+                Memory[0] = el + Calculate.Parse(x);
             }, x => TextExpression != "" && Memory.Count > 0);
         }
 
@@ -173,7 +151,7 @@ namespace Calc.ViewModels
             get => _subtractionInMemory ?? new RelayCommand<string>(x =>
             {
                 var el = Memory.First();
-                Memory[0] = el - Convert.ToDouble(x);
+                Memory[0] = el - Calculate.Parse(x);
             }, x => TextExpression != "" && Memory.Count > 0);
         }
 
@@ -183,7 +161,7 @@ namespace Calc.ViewModels
         {
             get => _subtractionMemoryElement ?? new RelayCommand<TextBox>(x =>
             {
-                var res = (Convert.ToDouble(x.Text) - Convert.ToDouble(TextExpression));
+                var res = Convert.ToDouble(x.Text) - Calculate.Parse(TextExpression);
                 x.Text = res.ToString();
             }, x => TextExpression != "");
         }
@@ -194,7 +172,7 @@ namespace Calc.ViewModels
         {
             get => _subtractionMemoryElement ?? new RelayCommand<TextBox>(x =>
             {
-                var res = (Convert.ToDouble(x.Text) + Convert.ToDouble(TextExpression));
+                var res = Convert.ToDouble(x.Text) + Calculate.Parse(TextExpression);
                 x.Text = res.ToString();
             }, x => TextExpression != "");
         }
@@ -220,6 +198,10 @@ namespace Calc.ViewModels
             get => _textExpression;
             set
             {
+                if (string.IsNullOrWhiteSpace(value))
+                    _validationDictionary[nameof(TextExpression)] = "Empty";
+                else
+                    _validationDictionary[nameof(TextExpression)] = null;
                 _textExpression = value;
                 OnPropertyChanged(nameof(TextExpression));
             }
@@ -237,28 +219,6 @@ namespace Calc.ViewModels
             }
         }
 
-        public double? LeftValue
-        {
-            get => _leftValue;
-            set
-            {
-                _leftValue = value;
-                OnPropertyChanged(nameof(LeftValue));
-                OnPropertyChanged(nameof(LastExpression));
-            }
-        }
-
-        public double? RightValue
-        {
-            get => _rightValue;
-            set
-            {
-                _rightValue = value;
-                OnPropertyChanged(nameof(RightValue));
-                OnPropertyChanged(nameof(LastExpression));
-            }
-        }
-
         public double? ResultValue
         {
             get => _resultValue;
@@ -270,64 +230,13 @@ namespace Calc.ViewModels
             }
         }
 
-        public char? Operation
-        {
-            get => _operation;
-            set
-            {
-                _operation = value;
-                OnPropertyChanged(nameof(Operation));
-                OnPropertyChanged(nameof(LastExpression));
-            }
-        }
-
         private bool Compute()
         {
             if (TextExpression == "") return false;
-            try
-            {
-                RightValue = Convert.ToDouble(TextExpression);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error: {ex.Message}");
-                return false;
-            }
-
-            switch (Operation)
-            {
-                case '+':
-                {
-                    ResultValue = LeftValue + RightValue;
-                    break;
-                }
-                case '-':
-                {
-                    ResultValue = LeftValue - RightValue;
-                    break;
-                }
-                case '*':
-                {
-                    ResultValue = LeftValue * RightValue;
-                    break;
-                }
-                case '/':
-                {
-                    if (RightValue == 0)
-                    {
-                        MessageBox.Show("Не надо делить на ноль друг)");
-                        return false;
-                    }
-
-                    ResultValue = LeftValue / RightValue;
-                    break;
-                }
-            }
-
-            LastExpression = $"{LeftValue} {Operation} {RightValue} = {ResultValue}";
+            ResultValue = Calculate.Parse(TextExpression);
+            LastExpression = $"{TextExpression} = {ResultValue}";
             Expressions.Add(LastExpression);
             TextExpression = ResultValue.ToString();
-            RightValue = ResultValue = LeftValue = Operation = null;
             return true;
         }
     }

@@ -63,19 +63,14 @@
                 CommandParameter="{Binding ElementName=LogExpressions}"
                 VerticalAlignment="Top" HorizontalAlignment="Right"/>
             <TextBlock Name="TextViewer" 
-                Text="{Binding TextExpression, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                Text="{Binding TextExpression, Mode=TwoWay, 
+                UpdateSourceTrigger=PropertyChanged,
+                ValidatesOnDataErrors=True}"
                 Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="4"
                 ToolTip="Result" FontSize="26" TextAlignment="Right" Padding="10, 0"
                 VerticalAlignment="Center" Background="#aaC88BF0"
                 Foreground="White" Height="40">
             </TextBlock>
-
-            <!--<TextBox Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="4"
-                     FontSize="14" TextAlignment="Left" Name="LogArithmetic"
-                     Padding="10, 0" VerticalAlignment="Bottom"
-                     Foreground="White" Height="20" IsReadOnly="True"
-                     BorderThickness="0" Background="Transparent"  
-                     Text="{Binding Path=LastExpression, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>-->
             <Button Content="MR" Command="{Binding ResetMemoryCommand}"
                     Grid.Column="0" Grid.Row="1" Style="{StaticResource ButtonStyle}" 
                     Height="20" FontSize="14"
@@ -193,7 +188,8 @@
                                   Width="Auto">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Grid Name="GridMemory">
+                                <Grid Name="GridMemory"
+                                      Margin="0 5">
                                     <Grid.RowDefinitions>
                                         <RowDefinition/>
                                         <RowDefinition/>
@@ -202,7 +198,7 @@
                                         <Style TargetType="{x:Type Grid}">
                                             <Style.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter Property="Background" Value="#3affffff"/>
+                                                    <Setter Property="Background" Value="#aaC88BF0"/>
                                                 </Trigger>
                                             </Style.Triggers>
                                         </Style>
