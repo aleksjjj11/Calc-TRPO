@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Calc.Models;
 using FluentAssertions;
 using NUnit.Framework;
@@ -21,7 +22,7 @@ namespace UnitTests
         [Test]
         public void Parse_ShouldReturnSix_WhenArgsEqualTwoMultiplyThree()
         {
-            var result = Calculate.Parse("2*3");
+            var result = Calculate.Parse("2*3/1");
             result.Should().Be(6.0).And.BePositive("Some problem");
         }
         [Test]
@@ -35,7 +36,7 @@ namespace UnitTests
         public void Parse_ShouldReturnNine_WhenArgsEqualOnePlusTwoMultiplyThreeDivisionOne()
         {
             var result = Calculate.Parse("1+2*3/1");
-            result.Should().Be(9.0).And.BePositive("Some problem");
+            result.Should().Be(7.0).And.BePositive("Some problem");
         }
 
         [Test]
@@ -64,6 +65,13 @@ namespace UnitTests
         {
             var result = Calculate.Parse("5/");
             result.Should().Be(5.0).And.BePositive("Some problem");
+        }
+
+        [Test]
+        public void Parse_ShouldReturnMinusTwo_WhenArgsEqualMinusTwo()
+        {
+            var result = Calculate.Parse("-1+2-3-4");
+            result.Should().Be(-6.0).And.BeNegative("Some problem");
         }
     }
 }
