@@ -14,60 +14,115 @@ namespace Calc.Models
             {
                 expression = expression.Replace(" ", "").Replace(".", ",");
                 string leftValue = "", rightValue = "";
+                int i = 0, lessIndexOperation = -1;
                 char? operation = null;
-                foreach (var symbol in expression)
+                if (expression.Contains("*") && expression.Contains("/"))
                 {
-                    if (operation != null) break;
-
-                    if (symbol >= '0' && symbol <= '9' || symbol == ',')
-                        leftValue += symbol;
-                    else if (symbol == '+' || symbol == '*' || symbol == '/' || symbol == '-')
-                        operation = symbol;
-                }
-
-                if (operation is null) return Convert.ToDouble(leftValue);
-
-                expression = expression.Remove(0, expression.IndexOf((char)operation) + 1);
-
-                foreach (var symbol in expression)
+                    lessIndexOperation = Math.Min(expression.IndexOf("*"), expression.IndexOf("/"));
+                } 
+                else if (expression.Contains("*"))
                 {
-                    if (symbol >= '0' && symbol <= '9' || symbol == ',')
-                        rightValue += symbol;
-                    else
-                        break;
+                    lessIndexOperation = expression.IndexOf("*");
                 }
+                else if (expression.Contains("/"))
+                {
+                    lessIndexOperation = expression.IndexOf("/");
+                } 
+                else if (expression.Contains("+") && expression.Contains("-"))
+                {
+                    lessIndexOperation = Math.Min(expression.IndexOf("+"), expression.LastIndexOf("-"));
+                }
+                else if (expression.Contains("+"))
+                {
+                    lessIndexOperation = expression.IndexOf("+");
+                }
+                else if (expression.Contains("-"))
+                {
+                    lessIndexOperation = expression.LastIndexOf("-");
+                    if (lessIndexOperation == 0)
+                        return Convert.ToDouble(expression);
+                }
+                
+                if (lessIndexOperation == -1)
+                    return Convert.ToDouble(expression);
 
-                if (rightValue == "")
+                leftValue = FindLeftValue(expression, lessIndexOperation);
+                rightValue = FindRightValue(expression, lessIndexOperation);
+                operation = expression[lessIndexOperation];
+                    
+                if (rightValue == "" || operation is null)
                     return Convert.ToDouble(leftValue);
-
-                expression = expression.Remove(0, rightValue.Length);
-
+                
+                int removeIndex = lessIndexOperation - leftValue.Length;
+                expression = expression.Remove(removeIndex, leftValue.Length + rightValue.Length + 1);
+                double result;
+                
                 switch (operation)
                 {
                     case '-':
                         {
-                            return Parse((Convert.ToDouble(leftValue) - Convert.ToDouble(rightValue)) + expression);
+                            result = Convert.ToDouble(leftValue) - Convert.ToDouble(rightValue);
+                            break;
                         }
                     case '+':
                         {
-                            return Parse((Convert.ToDouble(leftValue) + Convert.ToDouble(rightValue)) + expression);
+                            result = Convert.ToDouble(leftValue) + Convert.ToDouble(rightValue);
+                            break;
                         }
                     case '*':
                         {
-                            return Parse((Convert.ToDouble(leftValue) * Convert.ToDouble(rightValue)) + expression);
+                            result = Convert.ToDouble(leftValue) * Convert.ToDouble(rightValue);
+                            break;
                         }
                     case '/':
                         {
-                            return Parse((Convert.ToDouble(leftValue) / Convert.ToDouble(rightValue)) + expression);
+                            result = Convert.ToDouble(leftValue) / Convert.ToDouble(rightValue);
+                            break;
                         }
                     default: throw new Exception("We have problem");
                 }
+
+                return Parse(expression.Insert(removeIndex, result.ToString()));
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw new Exception("Interesting problem");
+                throw new Exception(e.Message);
             }
+        }
+        private static string FindLeftValue(string expression, int indexOperation)
+        {
+            string res = "";
+
+            for (int i = indexOperation - 1; i >= 0; i--)
+            {
+                char symbol = expression[i];
+                if (symbol >= '0' && symbol <= '9' || symbol == ',')
+                    res += symbol;
+                else if (symbol == '-')
+                {
+                    res += symbol;
+                    break;
+                }
+                else break;
+            }
+            
+            return new string(res.ToCharArray().Reverse().ToArray());
+        }
+
+        private static string FindRightValue(string expression, int indexOperation)
+        {
+            string res = "";
+
+            for (int i = indexOperation + 1; i < expression.Length; i++)
+            {
+                char symbol = expression[i];
+                if (symbol >= '0' && symbol <= '9' || symbol == ',')
+                    res += symbol;
+                else break;
+            }
+            
+            return res;
         }
     }
 }
