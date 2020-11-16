@@ -16,61 +16,70 @@ namespace UnitTests
         [Test]
         public void Parse_ShouldReturnFour_WhenArgsEqualSevenMinusThree()
         {
-            var result = Calculate.Parse("7-3");
+            var calc = new Calculate();
+            var result =  calc.Parse("7-3").Result;
             result.Should().Be(4.0).And.BePositive("Some problem");
         }
         [Test]
         public void Parse_ShouldReturnSix_WhenArgsEqualTwoMultiplyThree()
         {
-            var result = Calculate.Parse("2*3/1");
+            var calc = new Calculate();
+            var result = calc.Parse("2*3/1").Result;
             result.Should().Be(6.0).And.BePositive("Some problem");
         }
         [Test]
         public void Parse_ShouldReturnTen_WhenArgsEqualFiveSumFive()
         {
-            var result = Calculate.Parse("5+5");
+            var calc = new Calculate();
+            var result = calc.Parse("5+5").Result;
             result.Should().Be(10.0).And.BePositive("Some problem");
         }
 
         [Test]
         public void Parse_ShouldReturnNine_WhenArgsEqualOnePlusTwoMultiplyThreeDivisionOne()
         {
-            var result = Calculate.Parse("1+2*3/1");
+            var calc = new Calculate();
+            var result = calc.Parse("1+2*3/1").Result;
             result.Should().Be(7.0).And.BePositive("Some problem");
         }
 
         [Test]
         public void Parse_ShouldReturnFive_WhenArgsEqualFivePlus()
         {
-            var result = Calculate.Parse("5+");
+            var calc = new Calculate();
+            var result = calc.Parse("5+").Result;
             result.Should().Be(5.0).And.BePositive("Some problem");
         }
 
         [Test]
         public void Parse_ShouldReturnFive_WhenArgsEqualFiveMinus()
         {
-            var result = Calculate.Parse("5-");
+            var calc = new Calculate();
+            var result = calc.Parse("5-").Result;
             result.Should().Be(5.0).And.BePositive("Some problem");
         }
 
         [Test]
         public void Parse_ShouldReturnFive_WhenArgsEqualFiveMultiply()
         {
-            var result = Calculate.Parse("5*");
+            var calc = new Calculate();
+            var result = calc.Parse("5*").Result;
             result.Should().Be(5.0).And.BePositive("Some problem");
         }
 
         [Test]
         public void Parse_ShouldReturnFive_WhenArgsEqualFiveDivision()
         {
-            var result = Calculate.Parse("5/");
+            var calc = new Calculate();
+            var result = calc.Parse("5/").Result;
             result.Should().Be(5.0).And.BePositive("Some problem");
         }
 
         [Test]
         public void Parse_ShouldReturnMinusTwo_WhenArgsEqualMinusTwo()
         {
-            var result = Calculate.Parse("-1+2-3-4");
+            var calc = new Calculate();
+            var result = calc.Parse("-1+2-3-4").Result;
             result.Should().Be(-6.0).And.BeNegative("Some problem");
         }
     }

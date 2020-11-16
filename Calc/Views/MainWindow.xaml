@@ -35,6 +35,8 @@
                      CommandParameter="9" Key="D9"/>
         <KeyBinding  Command="{Binding AddZero}"
                      CommandParameter="0" Key="D0"/>
+        <KeyBinding Command="{Binding ArithmeticAction}"
+                    CommandParameter="*" Modifiers="Shift" Key="D8"/>
     </Window.InputBindings>
     <DockPanel Margin="10, 10" LastChildFill="False">
         <Grid DockPanel.Dock="Left" Name="CalcGrid" MinWidth="200" MaxWidth="200">
@@ -57,6 +59,10 @@
                 Grid.Column="0" Grid.Row="0" Command="{Binding CloseApp}" 
                 CommandParameter="{Binding ElementName=MainWin}"
                 VerticalAlignment="Top" HorizontalAlignment="Left"/>
+            <TextBlock Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3"
+                       Foreground="White"
+                       VerticalAlignment="Center"
+                       Text="{Binding TimeToSave, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
             <Button Height="30" Width="30" Content="→" Style="{StaticResource CloseButtonStyle}"
                 Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="4" 
                 Command="{Binding ShowLogsCommand}"
@@ -151,7 +157,6 @@
                                         ContentSource="Header"
                                         Margin="10, 2">
                                     </ContentPresenter>
-                                    
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsSelected" Value="True">
                                         <Setter Property="Foreground" Value="DeepPink"></Setter>
@@ -166,12 +171,12 @@
                 <ScrollViewer VerticalScrollBarVisibility="Hidden" DockPanel.Dock="Left"
                               MaxWidth="200"
                               HorizontalScrollBarVisibility="Auto">
-                    <ItemsControl ItemsSource="{Binding Path=Expressions, Mode=OneWay,
+                    <ItemsControl ItemsSource="{Binding Path=History.HistoryCollection, Mode=OneWay,
                         UpdateSourceTrigger=PropertyChanged}"
                                   Width="Auto">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <TextBox Text="{Binding .}"
+                                <TextBox Text="{Binding Action}"
                                          Style="{StaticResource LogsBlock}"/>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
@@ -182,7 +187,7 @@
                 <ScrollViewer VerticalScrollBarVisibility="Hidden" DockPanel.Dock="Left"
                               MaxWidth="200"
                               HorizontalScrollBarVisibility="Auto">
-                    <ItemsControl ItemsSource="{Binding Path=Memory, Mode=OneWay,
+                    <ItemsControl ItemsSource="{Binding Path=Memory.MemoryCollection, Mode=OneWay,
                         UpdateSourceTrigger=PropertyChanged}"
                                   AlternationCount="150"
                                   Width="Auto">
@@ -218,21 +223,21 @@
                                                 Content="MC" Command="{Binding DeleteMemoryElement}"
                                                 CommandParameter="{Binding ElementName=TextBoxMemoryElement,
                                                 Path=.}"
-                                                Grid.Column="1" Grid.Row="1" Style="{StaticResource ButtonStyle}" 
+                                                Style="{StaticResource ButtonStyle}" 
                                                 Height="30" Width="30" FontSize="14"
                                                 VerticalAlignment="Bottom"/>
                                         <Button DockPanel.Dock="Right"
                                                 Content="M+" Command="{Binding AdditionMemoryElement}"
                                                 CommandParameter="{Binding ElementName=TextBoxMemoryElement,
                                                 Path=.}"
-                                                Grid.Column="1" Grid.Row="1" Style="{StaticResource ButtonStyle}" 
+                                                Style="{StaticResource ButtonStyle}" 
                                                 Height="30" Width="30" FontSize="14"
                                                 VerticalAlignment="Bottom"/>
                                         <Button DockPanel.Dock="Right"
                                                 Content="M-" Command="{Binding SubtractionMemoryElement}"
                                                 CommandParameter="{Binding ElementName=TextBoxMemoryElement,
                                                 Path=.}"
-                                                Grid.Column="2" Grid.Row="1" Style="{StaticResource ButtonStyle}" 
+                                                Style="{StaticResource ButtonStyle}" 
                                                 Height="30" Width="30" FontSize="14"
                                                 VerticalAlignment="Bottom"/>
                                     </DockPanel>

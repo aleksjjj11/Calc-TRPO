@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Calc.Interfaces;
 
 namespace Calc.Models
 {
-    public static class Calculate
+    public class Calculate : ICalculate
     {
-        public static double Parse(string expression)
+        public Expression Parse(string expression)
         {
             try
             {
@@ -40,19 +41,19 @@ namespace Calc.Models
                 {
                     lessIndexOperation = expression.LastIndexOf("-");
                     if (lessIndexOperation == 0)
-                        return Convert.ToDouble(expression);
+                        return new Expression(Convert.ToDouble(expression));//Convert.ToDouble(expression);
                 }
                 
                 if (lessIndexOperation == -1)
-                    return Convert.ToDouble(expression);
+                    return new Expression(Convert.ToDouble(expression));
 
                 leftValue = FindLeftValue(expression, lessIndexOperation);
                 rightValue = FindRightValue(expression, lessIndexOperation);
                 operation = expression[lessIndexOperation];
                     
                 if (rightValue == "" || operation is null)
-                    return Convert.ToDouble(leftValue);
-                
+                    return new Expression(Convert.ToDouble(expression));
+
                 int removeIndex = lessIndexOperation - leftValue.Length;
                 expression = expression.Remove(removeIndex, leftValue.Length + rightValue.Length + 1);
                 double result;
@@ -87,7 +88,7 @@ namespace Calc.Models
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw new Exception(e.Message);
+                return new Expression(0, e.Message);
             }
         }
         private static string FindLeftValue(string expression, int indexOperation)
