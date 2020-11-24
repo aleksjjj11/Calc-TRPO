@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Calc.Interfaces;
+using Newtonsoft.Json;
 
 namespace Calc.Models
 {
     class Memory : IMemory
     {
+        private string _fileName;
         public ObservableCollection<double> MemoryCollection { get; }
         public bool TryAdd()
         {
@@ -36,9 +39,17 @@ namespace Calc.Models
             return MemoryCollection.Count > 0;
         }
 
-        public Memory()
+        public Memory(string fileName)
         {
-            MemoryCollection = MemoryCollection ?? new ObservableCollection<double>();
+            _fileName = fileName;
+            if (File.Exists(_fileName) == false)
+            {
+                MemoryCollection = MemoryCollection ?? new ObservableCollection<double>();
+                return;
+            }
+
+            var jsonText = File.ReadAllText(_fileName);
+            MemoryCollection = JsonConvert.DeserializeObject<ObservableCollection<double>>(jsonText);
         }
 
         public void Add(double value)
@@ -68,7 +79,8 @@ namespace Calc.Models
 
         public void Save()
         {
-            throw new NotImplementedException();
+            var textToSave = JsonConvert.SerializeObject(MemoryCollection);
+            File.WriteAllText(_fileName, textToSave);
         }
     }
 }
