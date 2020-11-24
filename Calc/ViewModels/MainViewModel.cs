@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
@@ -18,7 +19,7 @@ namespace Calc.ViewModels
         public ICalculate Calculate { get; }
         public DateTime TimeLastSave { get; set; }
         public DateTime TimeNextSave { get; set; }
-        public TimeSpan TimeToSave => TimeNextSave - DateTime.Now;
+        public string TimeToSave => (TimeNextSave - DateTime.Now).ToString(@"hh\:mm\:ss");
         public Timer SaveTimer { get; }
         public Timer UpdateTimer { get; }
 
@@ -27,7 +28,7 @@ namespace Calc.ViewModels
         public MainViewModel()
         {
             History = new HistoryJson("myHistory.txt");
-            Memory = new Memory();
+            Memory = new Memory("myMemory.txt");
             Calculate = new Calculate();
             SaveTimer = new Timer
             {
@@ -39,7 +40,8 @@ namespace Calc.ViewModels
             TimeNextSave = TimeLastSave.AddSeconds(30);
             SaveTimer.Elapsed += (sender, args) =>
             {
-                History.Save("myHistory.txt");
+                History.Save();
+                Memory.Save();
                 TimeLastSave = DateTime.Now;
                 TimeNextSave = TimeLastSave.AddSeconds(30);
             };
@@ -95,7 +97,7 @@ namespace Calc.ViewModels
                     }
                     case "+/-":
                     {
-                        TextExpression = (-1 * Convert.ToDouble(TextExpression)).ToString();
+                        TextExpression = TextExpression[0] == '-' ? TextExpression.Remove(0, 1) : "-" + TextExpression;//(-1 * Convert.ToDouble(TextExpression)).ToString();
                         break;
                     }
                     case ".":
@@ -127,14 +129,15 @@ namespace Calc.ViewModels
                         TextExpression += x;
                         break;
                     }
-                    case "=":
-                    {
-                        if (TextExpression == "") break;
-                        Compute();
-                        break;
-                    }
                 }
             }, x => true);
+
+        private ICommand _computeCommand;
+
+        public ICommand ComputeCommand => _computeCommand ?? new RelayCommand(() =>
+        {
+            Compute();
+        }, () => Calculate.Parse(TextExpression).HasError == false && TextExpression.Any());
 
         private ICommand _closeApp;
 
@@ -224,11 +227,13 @@ namespace Calc.ViewModels
             get => _textExpression;
             set
             {
+                _textExpression = value;
                 if (string.IsNullOrWhiteSpace(value))
                     _validationDictionary[nameof(TextExpression)] = "Empty";
+                else if (Calculate.Parse(value).HasError)
+                    _validationDictionary[nameof(TextExpression)] = "Error in computing";
                 else
                     _validationDictionary[nameof(TextExpression)] = null;
-                _textExpression = value;
                 OnPropertyChanged(nameof(TextExpression));
             }
         }
