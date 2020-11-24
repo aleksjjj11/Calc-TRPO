@@ -47,8 +47,9 @@ namespace UnitTests
         public void Parse_ShouldReturnFive_WhenArgsEqualFivePlus()
         {
             var calc = new Calculate();
-            var result = calc.Parse("5+").Result;
-            result.Should().Be(5.0).And.BePositive("Some problem");
+            var exp = calc.Parse("5+");
+            var result = exp.Result;
+            result.Should().Be(0.0);
         }
 
         [Test]
@@ -56,7 +57,7 @@ namespace UnitTests
         {
             var calc = new Calculate();
             var result = calc.Parse("5-").Result;
-            result.Should().Be(5.0).And.BePositive("Some problem");
+            result.Should().Be(0.0);
         }
 
         [Test]
@@ -64,7 +65,7 @@ namespace UnitTests
         {
             var calc = new Calculate();
             var result = calc.Parse("5*").Result;
-            result.Should().Be(5.0).And.BePositive("Some problem");
+            result.Should().Be(0.0);
         }
 
         [Test]
@@ -72,7 +73,7 @@ namespace UnitTests
         {
             var calc = new Calculate();
             var result = calc.Parse("5/").Result;
-            result.Should().Be(5.0).And.BePositive("Some problem");
+            result.Should().Be(0.0);
         }
 
         [Test]
@@ -81,6 +82,39 @@ namespace UnitTests
             var calc = new Calculate();
             var result = calc.Parse("-1+2-3-4").Result;
             result.Should().Be(-6.0).And.BeNegative("Some problem");
+        }
+        [Test]
+        public void Parse_ShouldReturnMinusOne_WhenArgsEqualMinusFivePlusSix()
+        {
+            var calc = new Calculate();
+            var result = calc.Parse("-5+6").Result;
+            result.Should().Be(1.0);
+        }
+
+        [Test]
+        public void Parse_ShouldReturnEight_WhenArgsEqualTwoMultiplyTwoPlusTwoInBracket()
+        {
+            var calc = new Calculate();
+            var expression = calc.Parse("2*(2+2)");
+            var result = expression.Result;
+            result.Should().Be(8.0);
+        }
+        [Test]
+        public void Parse_ShouldReturnNinetySix_WhenArgsEqualTwoMultiplyTwoPlusTwoInBracket()
+        {
+            var calc = new Calculate();
+            var expression = calc.Parse("2*((2+2)*3+4)");
+            var result = expression.Result;
+            result.Should().Be(32.0);
+        }
+
+        [Test]
+        public void Parse_ShouldReturnError_WhenArgsTwoMultiplyCloseBracketTwoPlusTwoOpenBracket()
+        {
+            var calc = new Calculate();
+            var expression = calc.Parse("2*)2+2(");
+            var result = expression.HasError;
+            result.Should().Be(true);
         }
     }
 }

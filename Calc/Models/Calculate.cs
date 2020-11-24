@@ -14,6 +14,39 @@ namespace Calc.Models
             try
             {
                 expression = expression.Replace(" ", "").Replace(".", ",");
+                #region ParseBrackets
+                //If count open bracket not equal count close bracket we wil throw exception
+                if (expression.Count(x => x == '(') != expression.Count(x => x == ')'))
+                {
+                    throw new Exception("Count '(' not equal ')'.");
+                }
+                if (expression.Count(x => x == '(') > 0)
+                {
+                    int j = 0;
+                    int indexOpenBracket = -1, indexCloseBracket = -1;
+                    char? symbol = expression[j];
+
+                    while (j < expression.Length)
+                    {
+                        if (symbol == '(')
+                            indexOpenBracket = j;
+                        if (symbol == ')')
+                        {
+                            indexCloseBracket = j;
+                            break;
+                        }
+
+                        j++;
+                        symbol = expression[j];
+                    }
+                    if (indexOpenBracket > indexCloseBracket)
+                        throw new Exception("Close bracket before then open bracket");
+                    var resInBracket = Parse(expression.Substring(indexOpenBracket + 1, indexCloseBracket - indexOpenBracket - 1));
+                    expression = expression.Remove(indexOpenBracket, indexCloseBracket - indexOpenBracket + 1)
+                        .Insert(indexOpenBracket, resInBracket.Result.ToString());
+                    return Parse(expression);
+                }
+                #endregion
                 string leftValue = "", rightValue = "";
                 int i = 0, lessIndexOperation = -1;
                 char? operation = null;
@@ -31,7 +64,7 @@ namespace Calc.Models
                 } 
                 else if (expression.Contains("+") && expression.Contains("-"))
                 {
-                    lessIndexOperation = Math.Min(expression.IndexOf("+"), expression.LastIndexOf("-"));
+                    lessIndexOperation = expression.IndexOf("+");//Math.Min(expression.IndexOf("+"), expression.LastIndexOf("-"));
                 }
                 else if (expression.Contains("+"))
                 {
