@@ -7,8 +7,8 @@ using Calc.Models;
 
 namespace Calc.Interfaces
 {
-    interface ICalculate
+    public interface ICalculate
     {
-        Expression Parse(string expression);
+        Expression Parse(Expression expression);
     }
 }

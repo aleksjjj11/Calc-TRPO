@@ -9,10 +9,11 @@ namespace Calc.Models
 {
     public class Calculate : ICalculate
     {
-        public Expression Parse(string expression)
+        public Expression Parse(Expression exp)
         {
             try
             {
+                string expression = exp.Steps.Last();
                 expression = expression.Replace(" ", "").Replace(".", ",");
                 #region ParseBrackets
                 //If count open bracket not equal count close bracket we wil throw exception
@@ -41,10 +42,12 @@ namespace Calc.Models
                     }
                     if (indexOpenBracket > indexCloseBracket)
                         throw new Exception("Close bracket before then open bracket");
-                    var resInBracket = Parse(expression.Substring(indexOpenBracket + 1, indexCloseBracket - indexOpenBracket - 1));
+                    //var resInBracket = Parse(expression.Substring(indexOpenBracket + 1, indexCloseBracket - indexOpenBracket - 1));
+                    var resInBracket = Parse(new Expression(expression.Substring(indexOpenBracket + 1, indexCloseBracket - indexOpenBracket - 1), this));
                     expression = expression.Remove(indexOpenBracket, indexCloseBracket - indexOpenBracket + 1)
                         .Insert(indexOpenBracket, resInBracket.Result.ToString());
-                    return Parse(expression);
+                    exp.Steps.Add(expression);
+                    return Parse(exp);
                 }
                 #endregion
                 string leftValue = "", rightValue = "";
@@ -64,7 +67,10 @@ namespace Calc.Models
                 } 
                 else if (expression.Contains("+") && expression.Contains("-"))
                 {
-                    lessIndexOperation = expression.IndexOf("+");//Math.Min(expression.IndexOf("+"), expression.LastIndexOf("-"));
+                    if (expression[0] != '-')
+                        lessIndexOperation = Math.Min(expression.IndexOf("+"), expression.LastIndexOf("-"));
+                    else
+                        lessIndexOperation = expression.IndexOf("+");
                 }
                 else if (expression.Contains("+"))
                 {
@@ -74,18 +80,30 @@ namespace Calc.Models
                 {
                     lessIndexOperation = expression.LastIndexOf("-");
                     if (lessIndexOperation == 0)
-                        return new Expression(Convert.ToDouble(expression));//Convert.ToDouble(expression);
+                    {
+                        exp.Result = Convert.ToDouble(expression);
+                        return exp;
+                        //return new Expression(expression, Convert.ToDouble(expression));//Convert.ToDouble(expression);
+                    }
                 }
-                
+
                 if (lessIndexOperation == -1)
-                    return new Expression(Convert.ToDouble(expression));
+                {
+                    exp.Result = Convert.ToDouble(expression);
+                    return exp;
+                    //return new Expression(expression, Convert.ToDouble(expression));
+                }
 
                 leftValue = FindLeftValue(expression, lessIndexOperation);
                 rightValue = FindRightValue(expression, lessIndexOperation);
                 operation = expression[lessIndexOperation];
-                    
+
                 if (rightValue == "" || operation is null)
-                    return new Expression(Convert.ToDouble(expression));
+                {
+                    exp.Result = Convert.ToDouble(expression);
+                    return exp;
+                    //return new Expression(expression, Convert.ToDouble(expression));
+                }
 
                 int removeIndex = lessIndexOperation - leftValue.Length;
                 expression = expression.Remove(removeIndex, leftValue.Length + rightValue.Length + 1);
@@ -115,13 +133,16 @@ namespace Calc.Models
                         }
                     default: throw new Exception("We have problem");
                 }
-
-                return Parse(expression.Insert(removeIndex, result.ToString()));
+                exp.Steps.Add(expression.Insert(removeIndex, result.ToString()));
+                return Parse(exp);
+                //return Parse(expression.Insert(removeIndex, result.ToString()));
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return new Expression(0, e.Message);
+                exp.ErrorMessage = e.Message;
+                return exp;
+                //return new Expression(expression,0, e.Message);
             }
         }
         private static string FindLeftValue(string expression, int indexOperation)
