@@ -152,8 +152,27 @@
                                   Width="Auto">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <TextBox Text="{Binding Action}"
-                                         Style="{StaticResource LogsBlock}"/>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <Button Grid.Row="0"
+                                            Style="{StaticResource CloseButtonStyle}"
+                                            VerticalContentAlignment="Center"
+                                            Content="*" HorizontalAlignment="Right"
+                                            DataContext="{Binding ElementName=MainWin, Path=DataContext}"
+                                            Command="{Binding ShowStepsExpressionCommand}"
+                                            CommandParameter="{Binding ElementName=TextBoxExpression, Path=Tag}"></Button>
+                                    <TextBox Grid.Row="1" Text="{Binding Action}"
+                                             Name="TextBoxExpression"
+                                             Tag="{Binding }"
+                                             Style="{StaticResource LogsBlock}"
+                                             TextAlignment="Right"
+                                             TextWrapping="Wrap"
+                                             Width="180"/>
+                                </Grid>
+                                
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Input;
+using Calc.Models;
 using Calc.ViewModels;
 
 namespace Calc
@@ -14,7 +15,7 @@ namespace Calc
         public MainWindow()
         {
             WindowStyle = WindowStyle.None;
-            DataContext = _viewModel = new MainViewModel();
+            DataContext = _viewModel = new MainViewModel(new Calculate());
             InitializeComponent();
         }
 

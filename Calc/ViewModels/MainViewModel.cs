@@ -7,6 +7,8 @@ using System.Windows.Input;
 using Calc.Commands;
 using Calc.Interfaces;
 using Calc.Models;
+using Calc.Views;
+using Expression = Calc.Models.Expression;
 
 namespace Calc.ViewModels
 {
@@ -25,11 +27,11 @@ namespace Calc.ViewModels
 
         private string _lastExpression;
 
-        public MainViewModel()
+        public MainViewModel(ICalculate calculate)
         {
+            Calculate = calculate;
             History = new HistoryJson("myHistory.txt");
             Memory = new Memory("myMemory.txt");
-            Calculate = new Calculate();
             SaveTimer = new Timer
             {
                 Interval = 30000,
@@ -137,7 +139,7 @@ namespace Calc.ViewModels
         public ICommand ComputeCommand => _computeCommand ?? new RelayCommand(() =>
         {
             Compute();
-        }, () => Calculate.Parse(TextExpression).HasError == false && TextExpression.Any());
+        }, () => Calculate.Parse(new Expression(TextExpression, Calculate)).HasError == false && TextExpression.Any());
 
         private ICommand _closeApp;
 
@@ -168,8 +170,8 @@ namespace Calc.ViewModels
         {
             get => _addElementInMemory ?? new RelayCommand<string>(x =>
             {
-                Memory.Add(Calculate.Parse(x).Result);
-            }, x => TextExpression != "" && Calculate.Parse(x).HasError == false);
+                Memory.Add(new Expression(x, Calculate).Result);
+            }, x => TextExpression != "" && new Expression(x, Calculate).HasError == false);
         }
 
         private ICommand _additionInMemory;
@@ -178,8 +180,8 @@ namespace Calc.ViewModels
         {
             get => _additionInMemory ?? new RelayCommand<string>(x =>
             {
-                Memory.Increase(Calculate.Parse(x).Result, 0);
-            }, x => TextExpression != "" && Memory.TryIncrease(0) && Calculate.Parse(x).HasError == false);
+                Memory.Increase(new Expression(x, Calculate).Result, 0);
+            }, x => TextExpression != "" && Memory.TryIncrease(0) && new Expression(x, Calculate).HasError == false);
         }
 
         private ICommand _subtractionInMemory;
@@ -188,8 +190,8 @@ namespace Calc.ViewModels
         {
             get => _subtractionInMemory ?? new RelayCommand<string>(x =>
             {
-                Memory.Decrease(Calculate.Parse(x).Result, 0);
-            }, x => TextExpression != "" && Memory.TryDecrease(0) && Calculate.Parse(x).HasError == false);
+                Memory.Decrease(new Expression(x, Calculate).Result, 0);
+            }, x => TextExpression != "" && Memory.TryDecrease(0) && new Expression(x, Calculate).HasError == false);
         }
 
         private ICommand _subtractionMemoryElement;
@@ -198,8 +200,8 @@ namespace Calc.ViewModels
         {
             get => _subtractionMemoryElement ?? new RelayCommand<TextBox>(x =>
             {
-                Memory.Decrease(Calculate.Parse(TextExpression).Result, (int)x.Tag);
-            }, x => TextExpression != "" && Memory.TryDecrease((int)x.Tag) && Calculate.Parse(TextExpression).HasError == false);
+                Memory.Decrease(new Expression(TextExpression, Calculate).Result, (int)x.Tag);
+            }, x => TextExpression != "" && Memory.TryDecrease((int)x.Tag) && new Expression(TextExpression, Calculate).HasError == false);
         }
 
         private ICommand _additionMemoryElement;
@@ -208,8 +210,8 @@ namespace Calc.ViewModels
         {
             get => _additionMemoryElement ?? new RelayCommand<TextBox>(x =>
             {
-                Memory.Increase(Calculate.Parse(TextExpression).Result, (int)x.Tag);
-            }, x => TextExpression != "" && Memory.TryIncrease((int)x.Tag) && Calculate.Parse(TextExpression).HasError == false);
+                Memory.Increase(new Expression(TextExpression, Calculate).Result, (int)x.Tag);
+            }, x => TextExpression != "" && Memory.TryIncrease((int)x.Tag) && new Expression(TextExpression, Calculate).HasError == false);
         }
 
         private ICommand _deleteMemoryElement;
@@ -222,6 +224,14 @@ namespace Calc.ViewModels
             }, x => Memory.TryDelete((int)x.Tag));
         }
 
+        private ICommand _showStepsExpressionCommand;
+
+        public ICommand ShowStepsExpressionCommand => _showStepsExpressionCommand ?? new RelayCommand<Expression>(x =>
+        {
+            var window = new StepsExpressionWindow(x);
+            window.Show();
+        }, x => true);
+
         public string TextExpression
         {
             get => _textExpression;
@@ -230,7 +240,7 @@ namespace Calc.ViewModels
                 _textExpression = value;
                 if (string.IsNullOrWhiteSpace(value))
                     _validationDictionary[nameof(TextExpression)] = "Empty";
-                else if (Calculate.Parse(value).HasError)
+                else if (new Expression(value, Calculate).HasError)
                     _validationDictionary[nameof(TextExpression)] = "Error in computing";
                 else
                     _validationDictionary[nameof(TextExpression)] = null;
@@ -252,7 +262,7 @@ namespace Calc.ViewModels
         private bool Compute()
         {
             if (TextExpression == "") return false;
-            var resultExpression = Calculate.Parse(TextExpression);
+            var resultExpression = new Expression(TextExpression, Calculate);
             ResultValue = resultExpression.Result;
             LastExpression = $"{TextExpression} = {ResultValue}";
             resultExpression.Action = LastExpression;

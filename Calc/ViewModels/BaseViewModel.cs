@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Calc.ViewModels
 {
-    class BaseViewModel : INotifyPropertyChanged, IDataErrorInfo
+    public class BaseViewModel : INotifyPropertyChanged, IDataErrorInfo
     {
         public BaseViewModel()
         {
