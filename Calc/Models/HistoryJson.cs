@@ -12,18 +12,18 @@ namespace Calc.Models
 {
     public class HistoryJson : IHistory
     {
+        private string _fileName;
         public HistoryJson(string fileName)
         {
+            _fileName = fileName;
             if (File.Exists(fileName) == false)
             {
                 HistoryCollection = new ObservableCollection<Expression>();
                 return;
             }
 
-            var fileText = File.ReadAllText(fileName);
+            var fileText = File.ReadAllText(_fileName);
             HistoryCollection = JsonConvert.DeserializeObject<ObservableCollection<Expression>>(fileText);
-
-            //HistoryCollection = HistoryCollection ?? new ObservableCollection<Expression>();
         }
 
         public ObservableCollection<Expression> HistoryCollection { get; }
@@ -57,10 +57,10 @@ namespace Calc.Models
             HistoryCollection.Clear();
         }
 
-        public void Save(string fileName)
+        public void Save()
         {
             var textToOutput = JsonConvert.SerializeObject(HistoryCollection);
-            File.WriteAllText(fileName, textToOutput);
+            File.WriteAllText(_fileName, textToOutput);
         }
     }
 }
