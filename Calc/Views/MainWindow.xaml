@@ -14,30 +14,6 @@
         Background="#ddC88BF0"
         Name="MainWin"
         d:DataContext="{d:DesignInstance viewModels:MainViewModel}">
-    <Window.InputBindings>
-        <KeyBinding  Command="{Binding AddNumber}"
-                     CommandParameter="1" Key="D1"/>
-        <KeyBinding  Command="{Binding AddNumber}"
-                     CommandParameter="2" Key="D2"/>
-        <KeyBinding  Command="{Binding AddNumber}"
-                     CommandParameter="3" Key="D3"/>
-        <KeyBinding  Command="{Binding AddNumber}"
-                     CommandParameter="4" Key="D4"/>
-        <KeyBinding  Command="{Binding AddNumber}"
-                     CommandParameter="5" Key="D5"/>
-        <KeyBinding  Command="{Binding AddNumber}"
-                     CommandParameter="6" Key="D6"/>
-        <KeyBinding  Command="{Binding AddNumber}"
-                     CommandParameter="7" Key="D7"/>
-        <KeyBinding  Command="{Binding AddNumber}"
-                     CommandParameter="8" Key="D8"/>
-        <KeyBinding  Command="{Binding AddNumber}"
-                     CommandParameter="9" Key="D9"/>
-        <KeyBinding  Command="{Binding AddZero}"
-                     CommandParameter="0" Key="D0"/>
-        <KeyBinding Command="{Binding ArithmeticAction}"
-                    CommandParameter="*" Modifiers="Shift" Key="D8"/>
-    </Window.InputBindings>
     <DockPanel Margin="10, 10" LastChildFill="False">
         <Grid DockPanel.Dock="Left" Name="CalcGrid" MinWidth="200" MaxWidth="200">
             <Grid.RowDefinitions>
@@ -59,7 +35,7 @@
                 Grid.Column="0" Grid.Row="0" Command="{Binding CloseApp}" 
                 CommandParameter="{Binding ElementName=MainWin}"
                 VerticalAlignment="Top" HorizontalAlignment="Left"/>
-            <TextBlock Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3"
+            <TextBlock Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"
                        Foreground="White"
                        VerticalAlignment="Center"
                        Text="{Binding TimeToSave, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
@@ -68,7 +44,7 @@
                 Command="{Binding ShowLogsCommand}"
                 CommandParameter="{Binding ElementName=LogExpressions}"
                 VerticalAlignment="Top" HorizontalAlignment="Right"/>
-            <TextBlock Name="TextViewer" 
+            <TextBox Name="TextViewer" 
                 Text="{Binding TextExpression, Mode=TwoWay, 
                 UpdateSourceTrigger=PropertyChanged,
                 ValidatesOnDataErrors=True}"
@@ -76,7 +52,7 @@
                 ToolTip="Result" FontSize="26" TextAlignment="Right" Padding="10, 0"
                 VerticalAlignment="Center" Background="#aaC88BF0"
                 Foreground="White" Height="40">
-            </TextBlock>
+            </TextBox>
             <Button Content="MR" Command="{Binding ResetMemoryCommand}"
                     Grid.Column="0" Grid.Row="1" Style="{StaticResource ButtonStyle}" 
                     Height="20" FontSize="14"
@@ -133,7 +109,7 @@
                 Grid.Column="1" Grid.Row="6" Style="{StaticResource ButtonStyle}"/>
             <Button Content="+/-" Command="{Binding Action}"
                 Grid.Column="2" Grid.Row="6" Style="{StaticResource ButtonStyle}"/>
-            <Button Content="=" Command="{Binding ArithmeticAction}"
+            <Button Content="=" Command="{Binding ComputeCommand}"
                 Grid.Column="3" Grid.Row="5" Style="{StaticResource ButtonStyle}"
                 Grid.RowSpan="2"/>
         </Grid>
