@@ -10,8 +10,9 @@ using Newtonsoft.Json;
 
 namespace Calc.Models
 {
-    class Memory : IMemory
+    public class MemoryJson : IMemory
     {
+        private string _fileName;
         public ObservableCollection<double> MemoryCollection { get; }
         public bool TryAdd()
         {
@@ -38,34 +39,53 @@ namespace Calc.Models
             return MemoryCollection.Count > 0;
         }
 
-        public Memory()
+        public MemoryJson(string fileName)
         {
-            MemoryCollection = MemoryCollection ?? new ObservableCollection<double>();
+            _fileName = fileName;
+            if (File.Exists(_fileName) == false)
+            {
+                MemoryCollection = MemoryCollection ?? new ObservableCollection<double>();
+                return;
+            }
+
+            var jsonText = File.ReadAllText(_fileName);
+            MemoryCollection = JsonConvert.DeserializeObject<ObservableCollection<double>>(jsonText);
         }
 
         public void Add(double value)
         {
             MemoryCollection.Insert(0, value);
+            Save();
         }
 
         public void Delete(int index)
         {
             MemoryCollection.RemoveAt(index);
+            Save();
         }
 
         public void Increase(double value, int index)
         {
             MemoryCollection[index] += value;
+            Save();
         }
 
         public void Decrease(double value, int index)
         {
             MemoryCollection[index] -= value;
+            Save();
         }
 
         public void Clear()
         {
             MemoryCollection.Clear();
+            Save();
+        }
+
+        public void Save()
+        {
+            var textToSave = JsonConvert.SerializeObject(MemoryCollection);
+            File.WriteAllText(_fileName, textToSave);
         }
     }
 }
