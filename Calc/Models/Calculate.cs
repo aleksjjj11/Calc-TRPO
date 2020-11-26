@@ -13,7 +13,7 @@ namespace Calc.Models
         {
             try
             {
-                string expression = exp.Steps.Last();
+                string expression = exp.Steps.Split('\n').Last();
                 expression = expression.Replace(" ", "").Replace(".", ",");
                 #region ParseBrackets
                 //If count open bracket not equal count close bracket we wil throw exception
@@ -42,11 +42,10 @@ namespace Calc.Models
                     }
                     if (indexOpenBracket > indexCloseBracket)
                         throw new Exception("Close bracket before then open bracket");
-                    //var resInBracket = Parse(expression.Substring(indexOpenBracket + 1, indexCloseBracket - indexOpenBracket - 1));
                     var resInBracket = Parse(new Expression(expression.Substring(indexOpenBracket + 1, indexCloseBracket - indexOpenBracket - 1), this));
                     expression = expression.Remove(indexOpenBracket, indexCloseBracket - indexOpenBracket + 1)
                         .Insert(indexOpenBracket, resInBracket.Result.ToString());
-                    exp.Steps.Add(expression);
+                    exp.Steps += $"\n{expression}";
                     return Parse(exp);
                 }
                 #endregion
@@ -83,7 +82,6 @@ namespace Calc.Models
                     {
                         exp.Result = Convert.ToDouble(expression);
                         return exp;
-                        //return new Expression(expression, Convert.ToDouble(expression));//Convert.ToDouble(expression);
                     }
                 }
 
@@ -91,7 +89,6 @@ namespace Calc.Models
                 {
                     exp.Result = Convert.ToDouble(expression);
                     return exp;
-                    //return new Expression(expression, Convert.ToDouble(expression));
                 }
 
                 leftValue = FindLeftValue(expression, lessIndexOperation);
@@ -102,7 +99,6 @@ namespace Calc.Models
                 {
                     exp.Result = Convert.ToDouble(expression);
                     return exp;
-                    //return new Expression(expression, Convert.ToDouble(expression));
                 }
 
                 int removeIndex = lessIndexOperation - leftValue.Length;
@@ -133,16 +129,15 @@ namespace Calc.Models
                         }
                     default: throw new Exception("We have problem");
                 }
-                exp.Steps.Add(expression.Insert(removeIndex, result.ToString()));
+
+                exp.Steps += $"\n{expression.Insert(removeIndex, result.ToString())}";
                 return Parse(exp);
-                //return Parse(expression.Insert(removeIndex, result.ToString()));
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
                 exp.ErrorMessage = e.Message;
                 return exp;
-                //return new Expression(expression,0, e.Message);
             }
         }
         private static string FindLeftValue(string expression, int indexOperation)
