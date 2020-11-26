@@ -13,6 +13,5 @@ namespace Calc.Interfaces
         void Add(Expression expression);
         void Delete(int index);
         void Clear();
-        void Save();
     }
 }

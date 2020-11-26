@@ -22,7 +22,5 @@ namespace Calc.Interfaces
         void Increase(double value, int index);
         void Decrease(double value, int index);
         void Clear();
-        void Save();
-
     }
 }
