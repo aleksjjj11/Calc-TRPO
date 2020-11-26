@@ -35,10 +35,10 @@
                 Grid.Column="0" Grid.Row="0" Command="{Binding CloseApp}" 
                 CommandParameter="{Binding ElementName=MainWin}"
                 VerticalAlignment="Top" HorizontalAlignment="Left"/>
-            <TextBlock Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"
+            <!--<TextBlock Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"
                        Foreground="White"
                        VerticalAlignment="Center"
-                       Text="{Binding TimeToSave, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
+                       Text="{Binding TimeToSave, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>-->
             <Button Height="30" Width="30" Content="→" Style="{StaticResource CloseButtonStyle}"
                 Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="4" 
                 Command="{Binding ShowLogsCommand}"

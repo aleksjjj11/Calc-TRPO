@@ -32,7 +32,10 @@
                  Text="{Binding MExpression.Action,
             Mode=OneWay}"></TextBox>
         <ScrollViewer Grid.Row="2">
-            <ItemsControl ItemsSource="{Binding MExpression.Steps}">
+            <TextBox Style="{StaticResource LogsBlock}"
+                     Text="{Binding MExpression.Steps,
+                Mode=OneWay}"></TextBox>
+            <!--<ItemsControl ItemsSource="{Binding MExpression.Steps}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <TextBox Style="{StaticResource LogsBlock}"
@@ -43,7 +46,7 @@
                         ></TextBox>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
-            </ItemsControl>
+            </ItemsControl>-->
         </ScrollViewer>
     </Grid>
 </Window>

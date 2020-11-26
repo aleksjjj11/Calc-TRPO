@@ -22,39 +22,14 @@ namespace Calc.ViewModels
         public DateTime TimeLastSave { get; set; }
         public DateTime TimeNextSave { get; set; }
         public string TimeToSave => (TimeNextSave - DateTime.Now).ToString(@"hh\:mm\:ss");
-        public Timer SaveTimer { get; }
-        public Timer UpdateTimer { get; }
 
         private string _lastExpression;
 
         public MainViewModel(ICalculate calculate)
         {
             Calculate = calculate;
-            History = new HistoryJson("myHistory.txt");
-            Memory = new Memory("myMemory.txt");
-            SaveTimer = new Timer
-            {
-                Interval = 30000,
-                AutoReset = true,
-                Enabled = true,
-            };
-            TimeLastSave = DateTime.Now;
-            TimeNextSave = TimeLastSave.AddSeconds(30);
-            SaveTimer.Elapsed += (sender, args) =>
-            {
-                History.Save();
-                Memory.Save();
-                TimeLastSave = DateTime.Now;
-                TimeNextSave = TimeLastSave.AddSeconds(30);
-            };
-
-            UpdateTimer = new Timer
-            {
-                Interval = 1000,
-                AutoReset = true,
-                Enabled = true
-            };
-            UpdateTimer.Elapsed += (sender, args) => OnPropertyChanged(nameof(TimeToSave));
+            History = new HistorySqLite("C:\\Users\\DNS\\YandexDisk\\WorkUnik\\TRPO\\Calc_via_pattern\\Calc\\bin\\Debug\\mydb.db");
+            Memory = new MemorySQLite("C:\\Users\\DNS\\YandexDisk\\WorkUnik\\TRPO\\Calc_via_pattern\\Calc\\bin\\Debug\\mydb.db");
         }
 
         public string LastExpression
@@ -99,7 +74,7 @@ namespace Calc.ViewModels
                     }
                     case "+/-":
                     {
-                        TextExpression = TextExpression[0] == '-' ? TextExpression.Remove(0, 1) : "-" + TextExpression;//(-1 * Convert.ToDouble(TextExpression)).ToString();
+                        TextExpression = TextExpression[0] == '-' ? TextExpression.Remove(0, 1) : "-" + TextExpression;
                         break;
                     }
                     case ".":
