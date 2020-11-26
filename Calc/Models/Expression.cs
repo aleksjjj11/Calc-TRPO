@@ -13,7 +13,7 @@ namespace Calc.Models
         public Expression(string expression, ICalculate calc)
         {
             MathExpression = expression;
-            Steps = new ObservableCollection<string> {MathExpression};
+            Steps = MathExpression;
             if (calc is null)
             {
                 Result = 0;
@@ -26,7 +26,12 @@ namespace Calc.Models
                 ErrorMessage = res.ErrorMessage;
             }
         }
-        public ObservableCollection<string> Steps { get; }
+
+        public Expression()
+        {
+
+        }
+        public string Steps { get; set; }
         public string MathExpression { get; }
         public string Action { get; set; }
         public double Result { get; set; }
