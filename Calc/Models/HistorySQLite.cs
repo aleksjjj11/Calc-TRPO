@@ -39,8 +39,7 @@ namespace Calc.Models
             using (var connection = new SQLiteConnection($"Data Source={_dbName};Version=3;"))
             {
                 connection.Open();
-                var expressions = connection.Query<Expression>("select * Where Id=$id from Expressions",
-                    new { id = index + 1 });
+                var expressions = connection.Query<Expression>($"select *,Id={index + 1} from Expressions");
                 if (expressions.Any())
                     return true;
             }
