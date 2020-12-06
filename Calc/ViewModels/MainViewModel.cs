@@ -28,8 +28,8 @@ namespace Calc.ViewModels
         public MainViewModel(ICalculate calculate)
         {
             Calculate = calculate;
-            History = new HistorySqLite("C:\\Users\\DNS\\YandexDisk\\WorkUnik\\TRPO\\Calc_via_pattern\\Calc\\bin\\Debug\\mydb.db");
-            Memory = new MemorySQLite("C:\\Users\\DNS\\YandexDisk\\WorkUnik\\TRPO\\Calc_via_pattern\\Calc\\bin\\Debug\\mydb.db");
+            History = new HistorySqLite("mydb.db");
+            Memory = new MemorySQLite("mydb.db");
         }
 
         public string LastExpression
@@ -74,7 +74,8 @@ namespace Calc.ViewModels
                     }
                     case "+/-":
                     {
-                        TextExpression = TextExpression[0] == '-' ? TextExpression.Remove(0, 1) : "-" + TextExpression;
+                        if (string.IsNullOrWhiteSpace(TextExpression) == false)
+                            TextExpression = TextExpression[0] == '-' ? TextExpression.Remove(0, 1) : "-" + TextExpression;
                         break;
                     }
                     case ".":
