@@ -105,6 +105,7 @@
     <Compile Include="Models\History.cs" />
     <Compile Include="Models\MemoryJson.cs" />
     <Compile Include="Models\MemorySQLite.cs" />
+    <Compile Include="Models\SQLiteController.cs" />
     <Compile Include="ViewModels\StepsExpressionViewModel.cs" />
     <Compile Include="Views\StepsExpressionWindow.xaml.cs">
       <DependentUpon>StepsExpressionWindow.xaml</DependentUpon>
@@ -155,6 +156,9 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <Resource Include="Resources\mydb.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Fonts\19847.otf" />

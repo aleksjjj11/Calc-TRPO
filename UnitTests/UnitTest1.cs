@@ -13,82 +13,49 @@ namespace UnitTests
         {
         }
 
-        [Test]
-        public void Parse_ShouldReturnFour_WhenArgsEqualSevenMinusThree()
+        [TestCase(7, 3, '-', 4)]
+        [TestCase(5, 5, '+', 10)]
+        [TestCase(-5, 6, '+', 1)]
+        public void Parse_ShouldReturnFResult_WhenArgsEqualSVal1OperationVal2(double val1, double val2, char operation, double res)
         {
             var calc = new Calculate();
-            var result =  calc.Parse(new Expression("7-3", calc)).Result;
-            result.Should().Be(4.0).And.BePositive("Some problem");
+            var result =  calc.Parse(new Expression($"{val1}{operation}{val2}", calc)).Result;
+            result.Should().Be(res);
         }
         [Test]
         public void Parse_ShouldReturnSix_WhenArgsEqualTwoMultiplyThree()
         {
             var calc = new Calculate();
             var result = calc.Parse(new Expression("2*3/1", calc)).Result;
-            result.Should().Be(6.0).And.BePositive("Some problem");
-        }
-        [Test]
-        public void Parse_ShouldReturnTen_WhenArgsEqualFiveSumFive()
-        {
-            var calc = new Calculate();
-            var result = calc.Parse(new Expression("5+5", calc)).Result;
-            result.Should().Be(10.0).And.BePositive("Some problem");
+            result.Should().Be(6.0);
         }
 
         [Test]
-        public void Parse_ShouldReturnNine_WhenArgsEqualOnePlusTwoMultiplyThreeDivisionOne()
+        public void Parse_ShouldReturnSeven_WhenArgsEqualOnePlusTwoMultiplyThreeDivisionOne()
         {
             var calc = new Calculate();
             var result = calc.Parse(new Expression("1+2*3/1", calc)).Result;
-            result.Should().Be(7.0).And.BePositive("Some problem");
+            result.Should().Be(7.0);
         }
 
-        [Test]
-        public void Parse_ShouldReturnFive_WhenArgsEqualFivePlus()
+        [TestCase(5, '+', true)]
+        [TestCase(5, '-', true)]
+        [TestCase(5, '*', true)]
+        [TestCase(5, '/', true)]
+        public void Parse_ShouldReturnHasErrorTrue(double val, char operation, bool res)
         {
             var calc = new Calculate();
-            var exp = calc.Parse(new Expression("5+", calc));
-            var result = exp.Result;
-            result.Should().Be(0.0);
+            var exp = calc.Parse(new Expression($"{val}{operation}", calc));
+            var result = exp.HasError;
+            result.Should().Be(res);
         }
 
         [Test]
-        public void Parse_ShouldReturnFive_WhenArgsEqualFiveMinus()
-        {
-            var calc = new Calculate();
-            var result = calc.Parse(new Expression("5-", calc)).Result;
-            result.Should().Be(0.0);
-        }
-
-        [Test]
-        public void Parse_ShouldReturnFive_WhenArgsEqualFiveMultiply()
-        {
-            var calc = new Calculate();
-            var result = calc.Parse(new Expression("5*", calc)).Result;
-            result.Should().Be(0.0);
-        }
-
-        [Test]
-        public void Parse_ShouldReturnFive_WhenArgsEqualFiveDivision()
-        {
-            var calc = new Calculate();
-            var result = calc.Parse(new Expression("5/", calc)).Result;
-            result.Should().Be(0.0);
-        }
-
-        [Test]
-        public void Parse_ShouldReturnMinusTwo_WhenArgsEqualMinusTwo()
+        public void Parse_ShouldReturnMinusSix_WhenArgsEqualMinusOnePlusTwoMinusThreeMinusFour()
         {
             var calc = new Calculate();
             var result = calc.Parse(new Expression("-1+2-3-4", calc)).Result;
-            result.Should().Be(-6.0).And.BeNegative("Some problem");
-        }
-        [Test]
-        public void Parse_ShouldReturnMinusOne_WhenArgsEqualMinusFivePlusSix()
-        {
-            var calc = new Calculate();
-            var result = calc.Parse(new Expression("-5+6", calc)).Result;
-            result.Should().Be(1.0);
+            result.Should().Be(-6.0);
         }
 
         [Test]
@@ -100,7 +67,7 @@ namespace UnitTests
             result.Should().Be(8.0);
         }
         [Test]
-        public void Parse_ShouldReturnNinetySix_WhenArgsEqualTwoMultiplyTwoPlusTwoInBracket()
+        public void Parse_ShouldReturnThirtyTwo_WhenArgsEqualTwoMultiplyTwoPlusTwoInBracketMultiplyThreePlusFourInBracket()
         {
             var calc = new Calculate();
             var expression = calc.Parse(new Expression("2*((2+2)*3+4)", calc));
@@ -109,7 +76,7 @@ namespace UnitTests
         }
 
         [Test]
-        public void Parse_ShouldReturnError_WhenArgsTwoMultiplyCloseBracketTwoPlusTwoOpenBracket()
+        public void Parse_ShouldReturnHasErrorTrue_WhenArgsEqualTwoMultiplyCloseBracketTwoPlusTwoOpenBracket()
         {
             var calc = new Calculate();
             var expression = calc.Parse(new Expression("2*)2+2(", calc));
@@ -118,7 +85,7 @@ namespace UnitTests
         }
 
         [Test]
-        public void Parse_Test2()
+        public void Parse_ShouldReturnEighteen_WhenArgsEqualTenMinusTwoPlusTen()
         {
             var calc = new Calculate();
             var expression = calc.Parse(new Expression("10-2+10", calc));

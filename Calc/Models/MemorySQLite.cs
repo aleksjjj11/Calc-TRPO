@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
@@ -11,7 +12,7 @@ using Dapper;
 
 namespace Calc.Models
 {
-    public class MemorySQLite : IMemory
+    public class MemorySQLite : SqLiteController, IMemory
     {
         class RowMemory
         {
@@ -20,23 +21,13 @@ namespace Calc.Models
         }
         private string _dbName;
         public ObservableCollection<double> MemoryCollection { get; }
+        private IEnumerable<RowMemory> _rowMemories;
 
-        public MemorySQLite(string dbName)
+        public MemorySQLite(string dbName) : base(dbName)
         {
             _dbName = dbName;
             MemoryCollection = new ObservableCollection<double>();
-            using (var connection = new SQLiteConnection($"Data Source={_dbName};Version=3;"))
-            {
-                connection.Open();
-                var rows = connection.Query<RowMemory>("select * from Memory");
-                if (rows.Any())
-                {
-                    foreach (var row in rows)
-                    {
-                        MemoryCollection.Add(row.Value);
-                    }
-                }
-            }
+            UpdateInfo();
         }
         public bool TryAdd()
         {
@@ -45,116 +36,115 @@ namespace Calc.Models
 
         public bool TryDelete(int index)
         {
-            using (var connection = new SQLiteConnection($"Data Source={_dbName};Version=3;"))
+            try
             {
-                connection.Open();
-                var expressions = connection.Query<RowMemory>($"select *,Id={index + 1} from Memory");
+                var expressions = this.Request($"select Id={_rowMemories.ToArray()[index].Id} from Memory");
 
-                if (expressions.Any())
+                if (expressions is not null)
                     return true;
-            }
 
-            return false;
+                return false;
+
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
 
         public bool TryIncrease(int index)
         {
-            using (var connection = new SQLiteConnection($"Data Source={_dbName};Version=3;"))
+            try
             {
-                connection.Open();
-                var expressions = connection.Query<RowMemory>($"select *,Id={index + 1} from Memory");
+                var expressions =
+                    this.Request<RowMemory>($"select Id={_rowMemories.ToArray()[index].Id} from Memory") as
+                        IEnumerable<RowMemory>;
 
                 if (expressions.Any())
                     return true;
-            }
 
-            return false;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
 
         public bool TryDecrease(int index)
         {
-            using (var connection = new SQLiteConnection($"Data Source={_dbName};Version=3;"))
+            try
             {
-                connection.Open();
-                var expressions = connection.Query<RowMemory>($"select *,Id={index+1} from Memory");
+                var expressions = this.Request<RowMemory>($"select Id={_rowMemories.ToArray()[index].Id} from Memory") as IEnumerable<RowMemory>;
                 if (expressions.Any())
                     return true;
-            }
 
-            return false;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
 
         public bool TryClear()
         {
-            using (var connection = new SQLiteConnection($"Data Source={_dbName};Version=3;"))
-            {
-                connection.Open();
-                var expressions = connection.Query<RowMemory>("select * from Memory",
-                    new DynamicParameters());
-                if (expressions.Any())
-                    return true;
-            }
+            var expressions = this.Request<RowMemory>("select * from Memory") as IEnumerable<RowMemory>;
+            if (expressions.Any())
+                return true;
 
             return false;
         }
 
         public void Add(double value)
         {
-            using (var connection = new SQLiteConnection($"Data Source={_dbName};Version=3;"))
-            {
-                connection.Open();
-                var command = new SQLiteCommand(connection);
-                command.CommandText =
-                    @"Insert into Memory(Value) 
-                    Values(@Value)";
-                command.Parameters.AddWithValue("@Value", value);
-
-                command.ExecuteNonQuery();
-                MemoryCollection.Add(value);
-            }
+            var command = new SQLiteCommand();
+            command.CommandText =
+                @"Insert into Memory(Value) 
+					Values(@Value)";
+            command.Parameters.AddWithValue("@Value", value);
+            this.Request(command);
+            UpdateInfo();
         }
 
         public void Delete(int index)
         {
-            using (var connection = new SQLiteConnection($"Data Source={_dbName};Version=3;"))
-            {
-                connection.Open();
-                connection.Query($"Delete from Memory Where Id = {index + 1}");
-                MemoryCollection.RemoveAt(index);
-            }
+            this.Request($"Delete from Memory Where Id = {_rowMemories.ToArray()[index].Id}");
+            UpdateInfo();
         }
 
         public void Increase(double value, int index)
         {
-            using (var connection = new SQLiteConnection($"Data Source={_dbName};Version=3;"))
-            {
-                connection.Open();
-                var command = new SQLiteCommand(connection);
-                command.CommandText = $"Update Memory SET Value={MemoryCollection[index] + value} Where Id={index + 1}";
-                command.ExecuteNonQuery();
-                MemoryCollection[index] += value;
-            }
+            var command = new SQLiteCommand();
+            command.CommandText = $"Update Memory SET Value={MemoryCollection[index] + value} Where Id={_rowMemories.ToArray()[index].Id}";
+            this.Request(command);
+            MemoryCollection[index] += value;
         }
 
         public void Decrease(double value, int index)
         {
-            using (var connection = new SQLiteConnection($"Data Source={_dbName};Version=3;"))
-            {
-                connection.Open();
-                var command = new SQLiteCommand(connection);
-                command.CommandText = $"Update Memory SET Value={MemoryCollection[index] - value} Where Id={index + 1}";
-                command.ExecuteNonQuery();
-                MemoryCollection[index] -= value;
-            }
+            var command = new SQLiteCommand();
+            command.CommandText = $"Update Memory SET Value={MemoryCollection[index] - value} Where Id={_rowMemories.ToArray()[index].Id}";
+            this.Request(command);
+            MemoryCollection[index] -= value;
         }
 
         public void Clear()
         {
-            using (var connection = new SQLiteConnection($"Data Source={_dbName};Version=3;"))
+            this.Request($"Delete from Memory");
+            MemoryCollection.Clear();
+        }
+
+        public void UpdateInfo()
+        {
+            MemoryCollection.Clear();
+            _rowMemories = this.Request<RowMemory>("select * from Memory") as IEnumerable<RowMemory>;
+            if (_rowMemories.Any())
             {
-                connection.Open();
-                connection.Query($"Delete from Memory");
-                MemoryCollection.Clear();
+                foreach (var row in _rowMemories)
+                {
+                    MemoryCollection.Add(row.Value);
+                }
             }
         }
     }

@@ -27,7 +27,7 @@ namespace Calc.ViewModels
         public string this[string columnName] => _validationDictionary.ContainsKey(columnName) ? _validationDictionary[columnName] : null;
 
         public string Error =>
-            _validationDictionary.Any(x => string.IsNullOrWhiteSpace(x.Value)) 
+            _validationDictionary.Count(x => string.IsNullOrWhiteSpace(x.Value) == false) > 0
                 ? string.Join(Environment.NewLine, _validationDictionary.Where(x => string.IsNullOrWhiteSpace(x.Value) == false).GetEnumerator().Current) 
                 : null;
     }
